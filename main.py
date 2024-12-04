@@ -67,3 +67,6 @@ def train():
 def test():
     test_data=_test(test_loader,net)
     print("test: ",test_data.item())
+for i in range(3):
+    train()
+test()

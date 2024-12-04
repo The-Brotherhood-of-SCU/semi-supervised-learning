@@ -22,5 +22,5 @@ class Net(nn.Module):
         # shape is batchx2x7x7
         x=x.view(-1,2*7*7)
         x=self.linear(x)
-        x=F.softmax(x,dim=1)
+        #x=F.softmax(x,dim=1)
         return x
