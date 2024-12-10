@@ -8,8 +8,9 @@ from torch import optim
 
 
 
-batch_size=128
-epochs=100
+batch_size=32
+epochs=30
+
 # loaders
 train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
 unlabeled_loader=DataLoader(unlabeled_dataset,batch_size=batch_size,shuffle=True)
@@ -30,9 +31,9 @@ def display_photo(i:int=0):
     plt.show()
 
 def get_optimizer(net):
-    return optim.Adam(net.parameters(), lr=0.0001)
+    return optim.Adam(net.parameters())
 loss_fn = nn.CrossEntropyLoss()
-def _train(train_loader, net, loss_fn=loss_fn):
+def _train_supervised(train_loader, net, loss_fn=loss_fn):
     # set model to train mode
     net.train()
     for i in range(epochs):
@@ -45,7 +46,27 @@ def _train(train_loader, net, loss_fn=loss_fn):
             loss:torch.Tensor = loss_fn(outputs,labels)
             loss.backward()
             optimizer.step()
-            preds = outputs.argmax(0).detach()
+            preds = outputs.argmax(1).detach()
+            corrects += (preds==labels.data).sum()
+        print("epoch",i,"loss",loss)
+    return loss, corrects / len(train_loader.dataset)
+
+def _train_semi_supervised(train_loader, net, loss_fn=loss_fn):
+    # set model to train mode
+    net.train()
+    for i in range(epochs):
+        corrects = 0
+        optimizer=get_optimizer(net)
+        #for inputs, labels in tqdm(train_loader, leave=False):
+        for inputs in train_loader:
+            optimizer.zero_grad()
+            with torch.no_grad():
+                labels=net(inputs).argmax(1).detach()
+            outputs:torch.Tensor = net(inputs)
+            loss:torch.Tensor = loss_fn(outputs,labels)
+            loss.backward()
+            optimizer.step()
+            preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
         print("epoch",i,"loss",loss)
     return loss, corrects / len(train_loader.dataset)
@@ -56,17 +77,27 @@ def _test(test_loader, net):
     with torch.no_grad():
         for inputs, labels in tqdm(test_loader, leave=False):
             outputs = net(inputs)
-            preds = outputs.argmax(0).detach()
+            preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
     return corrects / len(test_loader.dataset)
 
-def train():
-    train_data=_train(train_loader,net)
-    print("train accuarcy: ",train_data[1].item())
 
+
+def train_supervised():
+    train_data=_train_supervised(train_loader,net)
+    print("train accuarcy: ",train_data[1].item())
+def train_semi_supervised():
+    train_data=_train_semi_supervised(unlabeled_loader,net)
+    print("train accuarcy: ",train_data[1].item())
 def test():
     test_data=_test(test_loader,net)
     print("test: ",test_data.item())
-for i in range(3):
-    train()
+
+print("start supervised")
+train_supervised()
+print("start test")
+test()
+print("start semi supervised")
+#train_semi_supervised()
+print("start test")
 test()

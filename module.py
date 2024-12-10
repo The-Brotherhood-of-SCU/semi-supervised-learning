@@ -8,7 +8,8 @@ class Net(nn.Module):
         self.cov1=nn.Conv2d(1,10,3,padding=1)
         self.cov2=nn.Conv2d(10,2,3,padding=1)
         self.maxpool=nn.MaxPool2d(2,2)
-        self.linear=nn.Linear(2*7*7,10)
+        self.linear=nn.Linear(2*7*7,64)
+        self.linear2=nn.Linear(64,10)
     def forward(self,x:torch.Tensor):
         # input shape is batchx784
         x=x.view(-1,1,28,28)
@@ -22,5 +23,7 @@ class Net(nn.Module):
         # shape is batchx2x7x7
         x=x.view(-1,2*7*7)
         x=self.linear(x)
+        x=F.relu(x)
+        x=self.linear2(x)
         #x=F.softmax(x,dim=1)
         return x

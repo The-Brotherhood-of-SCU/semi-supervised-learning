@@ -13,9 +13,10 @@ print("current_device: ",device)
 def load_npy(file_name:str,isDiv255=True)->torch.Tensor:
     tensor=torch.tensor(np.load(f"{floder_name}/{file_name}")).to(device).permute(1,0)
     tensor=tensor.float() 
-    if isDiv255:
+    if isDiv255:#feature
         tensor=tensor/255.0
-
+    else:#label
+        tensor=tensor.argmax(1)
     return tensor
 class TrainDataSet(Dataset):
     def __init__(self):
