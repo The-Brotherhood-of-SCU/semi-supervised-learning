@@ -48,8 +48,11 @@ def _train_supervised(train_loader, net, loss_fn=loss_fn):
             optimizer.step()
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
-        print("epoch",i,"loss",loss)
-    return loss, corrects / len(train_loader.dataset)
+            acc=(corrects / len(train_loader.dataset)).item()
+        print("epoch",i,"loss",loss.item(),"acc",acc)
+    return loss, acc
+
+
 
 def _train_semi_supervised(train_loader, net, loss_fn=loss_fn):
     # set model to train mode
@@ -68,8 +71,8 @@ def _train_semi_supervised(train_loader, net, loss_fn=loss_fn):
             optimizer.step()
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
-        print("epoch",i,"loss",loss)
-    return loss, corrects / len(train_loader.dataset)
+        print("epoch",i,"loss",loss.item())
+    return loss, (corrects / len(train_loader.dataset)).item()
 def _test(test_loader, net):
     # set model to eval mode
     net.eval()
@@ -79,19 +82,19 @@ def _test(test_loader, net):
             outputs = net(inputs)
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
-    return corrects / len(test_loader.dataset)
+    return (corrects / len(test_loader.dataset)).item()
 
 
 
 def train_supervised():
     train_data=_train_supervised(train_loader,net)
-    print("train accuarcy: ",train_data[1].item())
+    print("train accuarcy: ",train_data[1])
 def train_semi_supervised():
     train_data=_train_semi_supervised(unlabeled_loader,net)
-    print("train accuarcy: ",train_data[1].item())
+    print("train accuarcy: ",train_data[1])
 def test():
     test_data=_test(test_loader,net)
-    print("test: ",test_data.item())
+    print("test: ",test_data)
 
 print("start supervised")
 train_supervised()
