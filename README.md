@@ -77,6 +77,3 @@ cd semi-supervised-learning
 
 Feel free to contribute to this project by suggesting improvements, fixing bugs, or adding new features. To contribute, fork the repository, make your changes, and submit a pull request.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
