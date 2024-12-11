@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a simple neural network model implemented using PyTorch for classification tasks for final project in the curriculum called "Introduction to AI". The model is designed to process input data with a shape of `batch_size x 784` (typically flattened 28x28 images, such as MNIST digits). The architecture includes convolutional layers, pooling layers, and fully connected layers to learn and classify the input data into one of ten classes.Thanks to 57U,yyw,and FrostyJ！
+This repository contains a simple neural network model implemented using PyTorch for classification tasks for final project in the curriculum called "Introduction to AI". The model is designed to process input data with a shape of `batch_size x 784` (typically flattened 28x28 images, such as MNIST digits). The architecture includes convolutional layers, pooling layers, and fully connected layers to learn and classify the input data into one of ten classes. Thanks to 57U,yyw,and FrostyJ！
 
 ## Model Architecture
 
