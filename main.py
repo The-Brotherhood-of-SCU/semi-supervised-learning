@@ -9,7 +9,7 @@ from torch import optim
 
 
 batch_size=32
-epochs=10
+epochs=20
 
 # loaders
 train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
