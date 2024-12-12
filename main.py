@@ -9,7 +9,7 @@ from torch import optim
 
 
 batch_size=32
-epochs=20
+epochs=5
 
 # loaders
 train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
@@ -163,7 +163,7 @@ test()
 train_semi_supervised()
 test()
 
-train_supervised_enhanced(3)
+train_supervised_enhanced(2)
 test()
 
 train_semi_supervised(lambda_l2=0.1)
