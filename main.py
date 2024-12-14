@@ -58,9 +58,9 @@ def generate_final_output():
     net.eval()
     with torch.no_grad():
         x=torch.stack([final_dataset[i] for i in range(len(final_dataset))])
-        y=net(x)
+        y=F.softmax(net(x),dim=-1)
         for i in transform_offset(x):
-            y+=net(i)
+            y+=F.softmax(net(i),dim=-1)
         y=y.argmax(1).detach().cpu().unsqueeze(0)
         y=y.numpy()
     print("shape",y.shape)
@@ -109,22 +109,22 @@ def semi_supervised_training_with_regularization(unlabeled_dataloader, labeled_d
         print(f'Epoch [{epoch+1}/{num_epochs}] completed')
 
 
-def _test(test_loader, net):
+def _test(test_loader, net,isOffset=True):
     # set model to eval mode
     net.eval()
     corrects = 0
     with torch.no_grad():
         for inputs, labels in tqdm(test_loader, leave=False):
-            outputs = (net(inputs))
-            for i in transform_offset(inputs):
-                outputs+=(net(i))
+            outputs = F.softmax(net(inputs),dim=-1)
+            if isOffset:
+                for i in transform_offset(inputs):
+                    outputs+=F.softmax(net(i),dim=-1)
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
     return (corrects / len(test_loader.dataset)).item()
 
 def transform_offset(x:torch.Tensor,offset=1):
     x=x.view(-1,28,28)
-    # 左右上下移动3个像素
     left = torch.roll(x, shifts=-offset, dims=2)
     right = torch.roll(x, shifts=offset, dims=2)
     up = torch.roll(x, shifts=-offset, dims=1)
@@ -149,7 +149,9 @@ def train_supervised_rotated():
     print("train accuarcy: ",train_data[1])
 def train_semi_supervised(lambda_l2=0.001):
     print("start semi supervised")
-    train_data=semi_supervised_training_with_regularization(unlabeled_loader,train_loader,net,lambda_l2=lambda_l2)
+    enhanced_dataset=RotatedDataset(train_dataset)
+    train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
+    train_data=semi_supervised_training_with_regularization(unlabeled_loader,train_loader_,net,lambda_l2=lambda_l2)
     #print("train accuarcy: ",train_data[1])
 def train_supervised_flipped():
     print("start supervised_flipped")
@@ -157,39 +159,39 @@ def train_supervised_flipped():
     train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
     train_data=_train_supervised(train_loader_,net)
     print("train accuarcy: ",train_data[1])
-def test():
+def test(isOffset=True):
     print("start test")
-    test_data=_test(test_loader,net)
+    test_data=_test(test_loader,net,isOffset)
     print("test: ",test_data)
 
 # --- TRAIN ---
+if __name__=="__main__":
+    train_supervised()
+    test()
 
-train_supervised()
-test()
+    train_supervised_rotated()
+    test()
 
-train_supervised_rotated()
-test()
+    train_semi_supervised()
+    test()
 
-train_semi_supervised()
-test()
+    train_supervised_enhanced(3)
+    test()
 
-train_supervised_enhanced(3)
-test()
+    train_supervised_flipped()
+    test()
+    # train_semi_supervised(lambda_l2=0.1)
+    # test()
 
-train_supervised_flipped()
-test()
-# train_semi_supervised(lambda_l2=0.1)
-# test()
+    train_supervised_enhanced(1)
+    test()
 
-train_supervised_enhanced(1)
-test()
+    # train_semi_supervised()
+    # test()
 
-# train_semi_supervised()
-# test()
-
-# train_supervised_enhanced(1)
-# test()
-generate_final_output()
+    # train_supervised_enhanced(1)
+    # test()
+    generate_final_output()
 
 
 
