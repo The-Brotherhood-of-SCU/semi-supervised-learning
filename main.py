@@ -9,11 +9,11 @@ from torch import optim
 
 
 batch_size=32
-epochs=7
+epochs=8
 
 # loaders
 train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
-unlabeled_loader=DataLoader(unlabeled_dataset,batch_size=batch_size,shuffle=True)
+unlabeled_loader=DataLoader(combined_unlabeled_dataset,batch_size=batch_size,shuffle=True) 
 test_loader=DataLoader(test_dataset,batch_size=batch_size,shuffle=True)
 final_test_loader=DataLoader(final_dataset,batch_size=batch_size,shuffle=True)
 #net
@@ -151,6 +151,12 @@ def train_semi_supervised(lambda_l2=0.001):
     print("start semi supervised")
     train_data=semi_supervised_training_with_regularization(unlabeled_loader,train_loader,net,lambda_l2=lambda_l2)
     #print("train accuarcy: ",train_data[1])
+def train_supervised_flipped():
+    print("start supervised_flipped")
+    enhanced_dataset=FlippedDataset(train_dataset)
+    train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
+    train_data=_train_supervised(train_loader_,net)
+    print("train accuarcy: ",train_data[1])
 def test():
     print("start test")
     test_data=_test(test_loader,net)
@@ -167,19 +173,22 @@ test()
 train_semi_supervised()
 test()
 
-train_supervised_enhanced(2)
+train_supervised_enhanced(3)
 test()
 
+train_supervised_flipped()
+test()
 # train_semi_supervised(lambda_l2=0.1)
 # test()
 
 train_supervised_enhanced(1)
 test()
 
-#train_semi_supervised()
-#test()
+# train_semi_supervised()
+# test()
 
-
+# train_supervised_enhanced(1)
+# test()
 generate_final_output()
 
 

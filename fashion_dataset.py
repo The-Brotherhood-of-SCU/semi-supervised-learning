@@ -115,8 +115,75 @@ class RotatedDataset(Dataset):
 
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]
+    
+class FlippedDataset(Dataset):
+    def __init__(self, original_dataset):
+        self.x = []
+        self.y = []
+
+        for data, label in original_dataset:
+            # 将数据重塑为28x28的图像
+            image = data.view(28, 28)
+            # 保存原始图像
+            self.x.append(image)
+            self.y.append(label)
+            # 水平翻转
+            flipped = torch.flip(image, dims=(1,))
+            self.x.append(flipped)
+            self.y.append(label)
+
+        # 将图像重塑回784维向量
+        self.x = [img.reshape(-1) for img in self.x]
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]
+
+class CombinedUnlabeledDataset(Dataset):
+    def __init__(self, unlabeled_dataset, offset=2):
+        self.x = []
+
+        for data in unlabeled_dataset:
+            # 将数据重塑为28x28的图像
+            image = data.view(28, 28)
+            # 保存原始图像
+            self.x.append(image)
+            # 旋转90度
+            rotated90 = torch.rot90(image, k=1, dims=(0, 1))
+            self.x.append(rotated90)
+            # 旋转180度
+            rotated180 = torch.rot90(image, k=2, dims=(0, 1))
+            self.x.append(rotated180)
+            # 旋转270度
+            rotated270 = torch.rot90(image, k=3, dims=(0, 1))
+            self.x.append(rotated270)
+            # 水平翻转
+            flipped = torch.flip(image, dims=(1,))
+            self.x.append(flipped)
+            # 左右上下移动offset个像素
+            left = torch.roll(image, shifts=-offset, dims=1)
+            right = torch.roll(image, shifts=offset, dims=1)
+            up = torch.roll(image, shifts=-offset, dims=0)
+            down = torch.roll(image, shifts=offset, dims=0)
+            self.x.append(left.view(-1))
+            self.x.append(right.view(-1))
+            self.x.append(up.view(-1))
+            self.x.append(down.view(-1))
+
+        # 将图像重塑回784维向量
+        self.x = [img.reshape(-1) for img in self.x]
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, idx):
+        return self.x[idx]
 
 train_dataset=TrainDataSet()
 unlabeled_dataset=UnlabeledDataSet()
 test_dataset=TestDataSet()
 final_dataset=FinalTestDataSet()
+
+combined_unlabeled_dataset = CombinedUnlabeledDataset(unlabeled_dataset)
