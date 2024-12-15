@@ -14,9 +14,8 @@ epochs=8
 # loaders
 train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
 unlabeled_loader=DataLoader(combined_unlabeled_dataset,batch_size=batch_size,shuffle=True) 
-test_loader=DataLoader(test_dataset,batch_size=batch_size,shuffle=True)
+test_loader=DataLoader(test_dataset,batch_size=128,shuffle=True)
 final_test_loader=DataLoader(final_dataset,batch_size=batch_size,shuffle=True)
-flip_train_loader=DataLoader(flip_train_dataset,batch_size=batch_size,shuffle=True)
 #net
 net=Net().to(device)
 
@@ -140,60 +139,42 @@ def train_supervised(epochs=epochs):
     print("start supervised")
     train_data=_train_supervised(train_loader,net,epochs=epochs)
     print("train accuarcy: ",train_data[1])
-def train_supervised_enhanced(offset=2):
+def train_supervised_enhanced(offset=2,epochs=epochs):
     enhanced_dataset=EnhancedDataset(train_dataset,offset=offset)
     train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
     print("start supervised_enhanced with offset: ",offset)
-    train_data=_train_supervised(train_loader_,net)
+    train_data=_train_supervised(train_loader_,net,epochs=epochs)
     print("train accuarcy: ",train_data[1])
-def train_supervised_rotated():
+def train_supervised_rotated(epochs=epochs):
     print("start supervised_rotated")
     enhanced_dataset=RotatedDataset(train_dataset)
     train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
-    train_data=_train_supervised(train_loader_,net)
+    train_data=_train_supervised(train_loader_,net,epochs=epochs)
     print("train accuarcy: ",train_data[1])
-def train_semi_supervised(lambda_l2=0.001):
+def train_semi_supervised(lambda_l2=0.001,epochs=epochs):
     print("start semi supervised")
     enhanced_dataset=EnhancedDataset(train_dataset,offset=2)
     train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
-    train_data=semi_supervised_training_with_regularization(unlabeled_loader,train_loader_,net,lambda_l2=lambda_l2)
+    train_data=semi_supervised_training_with_regularization(unlabeled_loader,train_loader_,net,lambda_l2=lambda_l2,num_epochs=epochs)
     #print("train accuarcy: ",train_data[1])
-def train_supervised_flipped():
-    print("start supervised_flipped")
-    train_data=_train_supervised(flip_train_loader,net)
-    print("train accuarcy: ",train_data[1])
 def test(isOffset=True):
-    print("start test")
+    #print("start test")
     test_data=_test(test_loader,net,isOffset)
     print("test: ",test_data)
 
 # --- TRAIN ---
 if __name__=="__main__":
-    train_supervised()
-    test()
-
-    train_supervised_rotated()
-    test()
-
-    train_semi_supervised()
-    test()
-
-    train_supervised_enhanced(3)
-    test()
-
-    train_supervised_flipped()
-    test()
-    # train_semi_supervised(lambda_l2=0.1)
-    # test()
-
-    train_supervised_enhanced(1)
-    test()
-
-    # train_semi_supervised()
-    # test()
-
-    # train_supervised_enhanced(1)
-    # test()
+    trains=[
+        lambda:train_supervised(epochs=1),
+        #lambda:train_supervised_rotated(epochs=1),
+        lambda:train_semi_supervised(epochs=1),
+        lambda:train_supervised_enhanced(2,epochs=1),
+        lambda:train_supervised_enhanced(1,epochs=1),
+    ]
+    for _ in range(epochs):
+        for train in trains:
+            train()
+            test()
     generate_final_output()
 
 

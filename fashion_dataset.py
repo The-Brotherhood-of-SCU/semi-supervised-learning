@@ -185,6 +185,7 @@ train_dataset=TrainDataSet()
 unlabeled_dataset=UnlabeledDataSet()
 test_dataset=TestDataSet()
 final_dataset=FinalTestDataSet()
-flip_train_dataset=FlippedDataset(train_dataset)
+# 直接用这个替代原始的
+train_dataset=FlippedDataset(train_dataset)
 
 combined_unlabeled_dataset = CombinedUnlabeledDataset(unlabeled_dataset)
