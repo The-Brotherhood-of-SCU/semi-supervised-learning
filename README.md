@@ -6,41 +6,7 @@ This repository contains a simple neural network model implemented using PyTorch
 
 ## Model Architecture
 
-The neural network class `Net` inherits from `nn.Module` in PyTorch and consists of the following layers:
-
-1. **Convolutional Layer 1 (`conv1`)**:
-   - Input Channels: 1
-   - Output Channels: 32
-   - Kernel Size: 3x3
-   - Padding: 1
-
-2. **Max Pooling Layer 1**:
-   - Kernel Size: 2x2
-   - Stride: 2
-
-3. **ReLU Activation**: Applied after the first convolutional and pooling layers.
-
-4. **Convolutional Layer 2 (`conv2`)**:
-   - Input Channels: 32
-   - Output Channels: 16
-   - Kernel Size: 3x3
-   - Padding: 1
-
-5. **Max Pooling Layer 2**:
-   - Kernel Size: 2x2
-   - Stride: 2
-
-6. **ReLU Activation**: Applied after the second convolutional and pooling layers.
-
-7. **Fully Connected Layer 1 (`linear`)**:
-   - Input Features: 16 * 7 * 7 (flattened from the previous layer)
-   - Output Features: 64
-
-8. **ReLU Activation**: Applied after the first fully connected layer.
-
-9. **Fully Connected Layer 2 (`linear2`)**:
-   - Input Features: 64
-   - Output Features: 10 (number of classes)
+under constructing
 
 ## Usage
 
