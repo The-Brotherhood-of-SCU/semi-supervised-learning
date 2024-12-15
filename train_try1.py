@@ -25,8 +25,8 @@ def train_(epochs=epochs,loader=flip_loader_,get_optimizer=get_optimizer,loss_fn
 
             for i in range(recurse-1):
                 outputs=net2(inputs,outputs)
-                loss:torch.Tensor = loss_fn(outputs,labels)
-                loss.backward(retain_graph=True)
+            loss:torch.Tensor = loss_fn(outputs,labels)
+            loss.backward(retain_graph=True)
             optimizer.step()
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
