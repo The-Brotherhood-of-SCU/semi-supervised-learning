@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.linear = nn.Linear(64 * 7 * 7 + 4 * 14 * 14, 128)
         self.linear2 = nn.Linear(128, 10)
 
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.2)
     def forward(self, x: torch.Tensor):
         # input shape is batchx784
         x = x.view(-1, 1, 28, 28)
