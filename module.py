@@ -41,7 +41,7 @@ class Net(nn.Module):
         x = self.linear2(x)
         return x
     
-
+# 这个是拿来尝试的，效果不咋样，不用写在报告里面
 class Net2(nn.Module):
     def __init__(self):
         super().__init__()

@@ -1,5 +1,7 @@
 from main import *
 
+# 这个是拿来尝试的，效果不咋样，不用写在报告里面
+
 net2=Net2().to(device)
 flip_dataset=FlippedDataset(train_dataset)
 flip_loader_=DataLoader(flip_dataset,batch_size=batch_size,shuffle=True)

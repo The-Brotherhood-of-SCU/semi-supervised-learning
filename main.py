@@ -16,15 +16,19 @@ train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
 unlabeled_loader=DataLoader(combined_unlabeled_dataset,batch_size=batch_size,shuffle=True) 
 test_loader=DataLoader(test_dataset,batch_size=batch_size,shuffle=True)
 final_test_loader=DataLoader(final_dataset,batch_size=batch_size,shuffle=True)
+flip_train_loader=DataLoader(flip_train_dataset,batch_size=batch_size,shuffle=True)
 #net
 net=Net().to(device)
 
-def display_photo(i:int=0):
+def display_photo(i:int=0,dataset=train_dataset):
     import numpy as np
     #display the photo
     import matplotlib.pyplot as plt
     # 显示张量图片
-    data:torch.Tensor=train_dataset[i][0]
+    data:torch.Tensor=dataset[i]
+    if(len(data)==2):
+        data=data[0]
+
     data=data.view(28,28)
     plt.imshow(data.cpu(), cmap='gray')
     plt.colorbar()
@@ -58,6 +62,7 @@ def generate_final_output():
     net.eval()
     with torch.no_grad():
         x=torch.stack([final_dataset[i] for i in range(len(final_dataset))])
+        #加入softmax的目的是为了排除极端预测影响整个结果
         y=F.softmax(net(x),dim=-1)
         for i in transform_offset(x):
             y+=F.softmax(net(i),dim=-1)
@@ -149,15 +154,13 @@ def train_supervised_rotated():
     print("train accuarcy: ",train_data[1])
 def train_semi_supervised(lambda_l2=0.001):
     print("start semi supervised")
-    enhanced_dataset=RotatedDataset(train_dataset)
+    enhanced_dataset=EnhancedDataset(train_dataset,offset=2)
     train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
     train_data=semi_supervised_training_with_regularization(unlabeled_loader,train_loader_,net,lambda_l2=lambda_l2)
     #print("train accuarcy: ",train_data[1])
 def train_supervised_flipped():
     print("start supervised_flipped")
-    enhanced_dataset=FlippedDataset(train_dataset)
-    train_loader_=DataLoader(enhanced_dataset,batch_size=batch_size,shuffle=True)
-    train_data=_train_supervised(train_loader_,net)
+    train_data=_train_supervised(flip_train_loader,net)
     print("train accuarcy: ",train_data[1])
 def test(isOffset=True):
     print("start test")

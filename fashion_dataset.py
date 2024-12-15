@@ -145,20 +145,20 @@ class CombinedUnlabeledDataset(Dataset):
     def __init__(self, unlabeled_dataset, offset=2):
         self.x = []
 
-        for data in unlabeled_dataset:
+        for data in unlabeled_dataset: #6x数据集增加
             # 将数据重塑为28x28的图像
             image = data.view(28, 28)
             # 保存原始图像
             self.x.append(image)
-            # 旋转90度
-            rotated90 = torch.rot90(image, k=1, dims=(0, 1))
-            self.x.append(rotated90)
-            # 旋转180度
-            rotated180 = torch.rot90(image, k=2, dims=(0, 1))
-            self.x.append(rotated180)
-            # 旋转270度
-            rotated270 = torch.rot90(image, k=3, dims=(0, 1))
-            self.x.append(rotated270)
+            # # 旋转90度
+            # rotated90 = torch.rot90(image, k=1, dims=(0, 1))
+            # self.x.append(rotated90)
+            # # 旋转180度
+            # rotated180 = torch.rot90(image, k=2, dims=(0, 1))
+            # self.x.append(rotated180)
+            # # 旋转270度
+            # rotated270 = torch.rot90(image, k=3, dims=(0, 1))
+            # self.x.append(rotated270)
             # 水平翻转
             flipped = torch.flip(image, dims=(1,))
             self.x.append(flipped)
@@ -185,5 +185,6 @@ train_dataset=TrainDataSet()
 unlabeled_dataset=UnlabeledDataSet()
 test_dataset=TestDataSet()
 final_dataset=FinalTestDataSet()
+flip_train_dataset=FlippedDataset(train_dataset)
 
 combined_unlabeled_dataset = CombinedUnlabeledDataset(unlabeled_dataset)
