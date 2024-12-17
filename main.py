@@ -6,16 +6,7 @@ from tqdm import tqdm
 from torch import optim
 
 
-
-
-batch_size=32
 epochs=8
-
-# loaders
-train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
-unlabeled_loader=DataLoader(combined_unlabeled_dataset,batch_size=batch_size,shuffle=True) 
-test_loader=DataLoader(test_dataset,batch_size=128,shuffle=True)
-final_test_loader=DataLoader(final_dataset,batch_size=batch_size,shuffle=True)
 #net
 net=Net().to(device)
 
@@ -127,13 +118,6 @@ def _test(test_loader, net,isOffset=True):
             corrects += (preds==labels.data).sum()
     return (corrects / len(test_loader.dataset)).item()
 
-def transform_offset(x:torch.Tensor,offset=1):
-    x=x.view(-1,28,28)
-    left = torch.roll(x, shifts=-offset, dims=2)
-    right = torch.roll(x, shifts=offset, dims=2)
-    up = torch.roll(x, shifts=-offset, dims=1)
-    down = torch.roll(x, shifts=offset, dims=1)
-    return [left,right,up,down]
 
 def train_supervised(epochs=epochs):
     print("start supervised")

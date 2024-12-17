@@ -187,5 +187,23 @@ test_dataset=TestDataSet()
 final_dataset=FinalTestDataSet()
 # 直接用这个替代原始的
 train_dataset=FlippedDataset(train_dataset)
-
 combined_unlabeled_dataset = CombinedUnlabeledDataset(unlabeled_dataset)
+
+enhanced_dataset_1=EnhancedDataset(train_dataset,offset=1)
+
+batch_size=32
+# loaders
+train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
+unlabeled_loader=DataLoader(combined_unlabeled_dataset,batch_size=batch_size,shuffle=True) 
+test_loader=DataLoader(test_dataset,batch_size=256,shuffle=True)
+final_test_loader=DataLoader(final_dataset,batch_size=batch_size,shuffle=True)
+enhance_loader_1=DataLoader(enhanced_dataset_1,batch_size=batch_size,shuffle=True)
+
+
+def transform_offset(x:torch.Tensor,offset=1):
+    x=x.view(-1,28,28)
+    left = torch.roll(x, shifts=-offset, dims=2)
+    right = torch.roll(x, shifts=offset, dims=2)
+    up = torch.roll(x, shifts=-offset, dims=1)
+    down = torch.roll(x, shifts=offset, dims=1)
+    return [left,right,up,down]

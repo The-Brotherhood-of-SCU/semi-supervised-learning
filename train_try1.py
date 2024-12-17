@@ -7,8 +7,8 @@ flip_dataset=FlippedDataset(train_dataset)
 flip_loader_=DataLoader(flip_dataset,batch_size=batch_size,shuffle=True)
 enhanced_dataset2=EnhancedDataset(train_dataset,offset=2)
 enhance_loader_2=DataLoader(enhanced_dataset2,batch_size=batch_size,shuffle=True)
-enhanced_dataset1=EnhancedDataset(train_dataset,offset=1)
-enhance_loader_1=DataLoader(enhanced_dataset1,batch_size=batch_size,shuffle=True)
+enhanced_dataset_1=EnhancedDataset(train_dataset,offset=1)
+enhance_loader_1=DataLoader(enhanced_dataset_1,batch_size=batch_size,shuffle=True)
 unlabeled_loader=DataLoader(unlabeled_dataset,batch_size=batch_size,shuffle=True)
 
 
