@@ -13,10 +13,10 @@ criterion_class = torch.nn.CrossEntropyLoss()  # Use CrossEntropyLoss for classi
 optimizer = optim.Adam(model.parameters())
 
 # Training loop
-def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_loader=combined_unlabeled_dataset, epochs=10):
+def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_loader=unlabeled_loader, epochs=10):
     model.train()
     for epoch in range(epochs):
-        for (labeled_data, labels), unlabeled_data in zip(train_loader, unlabeled_loader):
+        for ((labeled_data, labels), unlabeled_data) in zip(train_loader, unlabeled_loader):
             # Forward pass
             optimizer.zero_grad()
             labeled_class,decoded = model(labeled_data)
@@ -32,7 +32,7 @@ def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_
             reconstruction_loss=criterion_reconstruct(decoded,unlabeled_data)
             reconstruction_loss.backward()
             optimizer.step()
-        #print(f'Epoch {epoch+1}/{epochs}, Loss: {total_loss.item()}')
+        print(f'Epoch {epoch+1}/{epochs},total Loss: {total_loss.item():.4f},construction Loss: {reconstruction_loss.item():.4f},class Loss: {class_loss.item():.4f}')
 def test(test_loader=test_loader, net=model,isOffset=True):
     # set model to eval mode
     net.eval()
@@ -75,6 +75,9 @@ def save_final():
     print("shape",highest_acc_data.shape)
     np.save(f"out3/output_{highest_acc}.npy",highest_acc_data)
 
+
+loaders=[enhance_loader_1,enhance_loader_2]
 while True:
-    train_semi_supervised(epochs=1)
-    update_final_output()
+    for loader in loaders:
+        train_semi_supervised(train_loader=loader,epochs=1)
+        update_final_output()

@@ -43,13 +43,15 @@ class EnhancedDataset(Dataset):
             right = torch.roll(image, shifts=offset, dims=1)
             up = torch.roll(image, shifts=-offset, dims=0)
             down = torch.roll(image, shifts=offset, dims=0)
-
+            flipped = torch.flip(image, dims=(1,))
             # 将修改后的图像添加到数据列表中，并保持标签不变
             self.x.append(left.view(-1))
             self.x.append(right.view(-1))
             self.x.append(up.view(-1))
             self.x.append(down.view(-1))
-            self.y.extend([label] * 4)
+            self.x.append(data)
+            self.x.append(flipped.view(-1))
+            self.y.extend([label] * 6)
 
     def __len__(self):
         return len(self.x)
@@ -181,15 +183,16 @@ class CombinedUnlabeledDataset(Dataset):
     def __getitem__(self, idx):
         return self.x[idx]
 
-train_dataset=TrainDataSet()
+train_dataset_=TrainDataSet()
 unlabeled_dataset=UnlabeledDataSet()
 test_dataset=TestDataSet()
 final_dataset=FinalTestDataSet()
 # 直接用这个替代原始的
-train_dataset=FlippedDataset(train_dataset)
+train_dataset=FlippedDataset(train_dataset_)
 combined_unlabeled_dataset = CombinedUnlabeledDataset(unlabeled_dataset)
 
-enhanced_dataset_1=EnhancedDataset(train_dataset,offset=1)
+enhanced_dataset_1=EnhancedDataset(train_dataset_,offset=1)
+enhanced_dataset_2=EnhancedDataset(train_dataset_,offset=2)
 
 batch_size=32
 # loaders
@@ -198,6 +201,7 @@ unlabeled_loader=DataLoader(combined_unlabeled_dataset,batch_size=batch_size,shu
 test_loader=DataLoader(test_dataset,batch_size=256,shuffle=True)
 final_test_loader=DataLoader(final_dataset,batch_size=batch_size,shuffle=True)
 enhance_loader_1=DataLoader(enhanced_dataset_1,batch_size=batch_size,shuffle=True)
+enhance_loader_2=DataLoader(enhanced_dataset_2,batch_size=batch_size,shuffle=True)
 
 
 def transform_offset(x:torch.Tensor,offset=1):
@@ -207,3 +211,17 @@ def transform_offset(x:torch.Tensor,offset=1):
     up = torch.roll(x, shifts=-offset, dims=1)
     down = torch.roll(x, shifts=offset, dims=1)
     return [left,right,up,down]
+
+def display_photo(dataset=train_dataset,i:int=0,):
+    import numpy as np
+    #display the photo
+    import matplotlib.pyplot as plt
+    # 显示张量图片
+    data:torch.Tensor=dataset[i]
+    if(len(data)==2):
+        data=data[0]
+
+    data=data.view(28,28)
+    plt.imshow(data.cpu(), cmap='gray')
+    plt.colorbar()
+    plt.show()

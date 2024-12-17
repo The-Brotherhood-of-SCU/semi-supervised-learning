@@ -10,19 +10,7 @@ epochs=8
 #net
 net=Net().to(device)
 
-def display_photo(i:int=0,dataset=train_dataset):
-    import numpy as np
-    #display the photo
-    import matplotlib.pyplot as plt
-    # 显示张量图片
-    data:torch.Tensor=dataset[i]
-    if(len(data)==2):
-        data=data[0]
 
-    data=data.view(28,28)
-    plt.imshow(data.cpu(), cmap='gray')
-    plt.colorbar()
-    plt.show()
 
 def get_optimizer(net):
     return optim.Adam(net.parameters())
