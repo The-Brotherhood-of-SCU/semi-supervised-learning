@@ -16,6 +16,7 @@ optimizer = optim.Adam(model.parameters())
 def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_loader=unlabeled_loader, epochs=10):
     model.train()
     for epoch in range(epochs):
+        train_corrects = 0
         for ((labeled_data, labels), unlabeled_data) in zip(train_loader, unlabeled_loader):
             # Forward pass
             optimizer.zero_grad()
@@ -23,6 +24,8 @@ def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_
             reconstruction_loss=criterion_reconstruct(decoded,labeled_data)
             class_loss = criterion_class(labeled_class, labels)
             total_loss=reconstruction_loss+class_loss
+            preds = labeled_class.argmax(1).detach()
+            train_corrects += (preds==labels.data).sum()
             # Backward pass
             total_loss.backward()
             optimizer.step()
@@ -32,7 +35,8 @@ def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_
             reconstruction_loss=criterion_reconstruct(decoded,unlabeled_data)
             reconstruction_loss.backward()
             optimizer.step()
-        print(f'Epoch {epoch+1}/{epochs},total Loss: {total_loss.item():.4f},construction Loss: {reconstruction_loss.item():.4f},class Loss: {class_loss.item():.4f}')
+        acc=(train_corrects / len(train_loader.dataset)).item()
+        print(f'Epoch {epoch+1}/{epochs},total Loss: {total_loss.item():.4f},construction Loss: {reconstruction_loss.item():.4f},class acc: {acc:.4f}')
 def test(test_loader=test_loader, net=model,isOffset=True):
     # set model to eval mode
     net.eval()

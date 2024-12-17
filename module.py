@@ -102,7 +102,7 @@ class Net2(nn.Module):
 class Net3(nn.Module): 
     def __init__(self):
         super().__init__()
-        hidden_size = 80
+        hidden_size = 70
         self.conv1 = nn.Conv2d(1, 32, 3, padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
@@ -123,7 +123,7 @@ class Net3(nn.Module):
             nn.ConvTranspose2d(32, 1, 3, stride=2, output_padding=1,padding=1),
             nn.Sigmoid()
         )
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.2)
 
     def encode(self, x: torch.Tensor):
         x = x.view(-1, 1, 28, 28)
@@ -157,8 +157,10 @@ class Net3(nn.Module):
         return decoded.flatten(1)
 
     def classify(self, encoded: torch.Tensor):
-        x = self.linear(encoded)
+        x=self.dropout(encoded)
+        x = self.linear(x)
         x = F.relu(x)
+        x=self.dropout(x)
         x = self.linear2(x)
         return x
 
