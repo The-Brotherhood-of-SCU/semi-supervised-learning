@@ -102,7 +102,7 @@ class Net2(nn.Module):
 class Net3(nn.Module): 
     def __init__(self):
         super().__init__()
-        hidden_size = 90
+        hidden_size = 80
         self.conv1 = nn.Conv2d(1, 32, 3, padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
@@ -114,7 +114,9 @@ class Net3(nn.Module):
         self.linear2 = nn.Linear(128, 10)
         self.encoded_linear=nn.Linear(64 * 7 * 7 + 4 * 14 * 14,hidden_size)
         self.decoder = nn.Sequential(
-            nn.Linear(hidden_size, 64 * 7 * 7),
+            nn.Linear(hidden_size, 32 * 7 * 7),
+            nn.ReLU(),
+            nn.Linear(32 * 7 * 7, 64 * 7 * 7),
             nn.ReLU(),
             nn.Unflatten(1, (64, 7, 7)),
             nn.ConvTranspose2d(64, 32, 3, stride=2, output_padding=1,padding=1),

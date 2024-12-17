@@ -210,7 +210,8 @@ def transform_offset(x:torch.Tensor,offset=1):
     right = torch.roll(x, shifts=offset, dims=2)
     up = torch.roll(x, shifts=-offset, dims=1)
     down = torch.roll(x, shifts=offset, dims=1)
-    return [left,right,up,down]
+    flipped = torch.flip(x, dims=(1,))
+    return [left,right,up,down,flipped]
 
 def display_photo(dataset=train_dataset,i:int=0,):
     import numpy as np
