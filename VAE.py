@@ -100,3 +100,5 @@ def train_infty():
         for loader in loaders:
             train_semi_supervised(train_loader=loader,epochs=1)
             update_final_output()
+if __name__=="__main__":
+    train_infty()
