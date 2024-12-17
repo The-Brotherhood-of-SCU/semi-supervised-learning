@@ -72,7 +72,21 @@ def update_final_output():
     highest_acc=test_acc
     highest_acc_data=y
     
-
+def draw(index:int=0):
+    import matplotlib.pyplot as plt
+    with torch.no_grad():
+        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+        data:torch.Tensor=unlabeled_dataset[index]
+        _,data2=model(data)
+        data2=data2.view(28,28)
+        # 显示原始图像
+        ax[0].imshow(data.cpu().view(28,28),cmap="gray")
+        ax[0].set_title('Original Image')
+        ax[0].axis('off')
+        # 显示掩码
+        ax[1].imshow(data2.cpu().view(28,28), cmap='gray')
+        ax[1].set_title('reconstructed Image')
+        ax[1].axis('off')
 def save_final():
     import os
     os.makedirs("out3",exist_ok=True)
@@ -81,7 +95,8 @@ def save_final():
 
 
 loaders=[enhance_loader_1,enhance_loader_2]
-while True:
-    for loader in loaders:
-        train_semi_supervised(train_loader=loader,epochs=1)
-        update_final_output()
+def train_infty():
+    while True:
+        for loader in loaders:
+            train_semi_supervised(train_loader=loader,epochs=1)
+            update_final_output()

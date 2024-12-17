@@ -102,7 +102,7 @@ class Net2(nn.Module):
 class Net3(nn.Module): 
     def __init__(self):
         super().__init__()
-        hidden_size = 70
+        hidden_size = 90
         self.conv1 = nn.Conv2d(1, 32, 3, padding=1)
         self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
