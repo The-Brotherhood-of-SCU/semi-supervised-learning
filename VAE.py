@@ -93,12 +93,14 @@ def save_final():
     print("shape",highest_acc_data.shape)
     np.save(f"out3/output_{highest_acc}.npy",highest_acc_data)
 
+import random
+loaders = [enhance_loader_1, enhance_loader_2, train_loader, train_loader]
 
-loaders=[enhance_loader_1,enhance_loader_2]
 def train_infty():
     while True:
-        for loader in loaders:
-            train_semi_supervised(train_loader=loader,epochs=1)
-            update_final_output()
-if __name__=="__main__":
+        loader = random.choice(loaders)
+        train_semi_supervised(train_loader=loader, epochs=1)
+        update_final_output()
+
+if __name__ == "__main__":
     train_infty()

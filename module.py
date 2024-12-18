@@ -112,17 +112,17 @@ class Net3(nn.Module):
         self.maxpool = nn.MaxPool2d(2, 2)
         self.linear = nn.Linear(hidden_size, 128)
         self.linear2 = nn.Linear(128, 10)
-        self.encoded_linear=nn.Linear(64 * 7 * 7 + 4 * 14 * 14,hidden_size)
+        self.encoded_linear = nn.Linear(64 * 7 * 7 + 4 * 14 * 14, hidden_size)
         self.decoder = nn.Sequential(
             nn.Linear(hidden_size, 32 * 7 * 7),
             nn.ReLU(),
             nn.Linear(32 * 7 * 7, 64 * 7 * 7),
             nn.ReLU(),
             nn.Unflatten(1, (64, 7, 7)),
-            nn.ConvTranspose2d(64, 32, 3, stride=2, output_padding=1,padding=1),
+            nn.ConvTranspose2d(64, 32, 3, stride=2, output_padding=1, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 1, 3, stride=2, output_padding=1,padding=1),
+            nn.ConvTranspose2d(32, 1, 3, stride=2, output_padding=1, padding=1),
             nn.Sigmoid()
         )
         self.dropout = nn.Dropout(0.2)
@@ -148,21 +148,20 @@ class Net3(nn.Module):
         x = self.maxpool(x)
         
         encoded = x.flatten(1)
-        encoded= torch.cat((encoded, x2),dim=1)
-        encoded=self.encoded_linear(encoded)
-        encoded=F.relu(encoded)
+        encoded = torch.cat((encoded, x2), dim=1)
+        encoded = self.encoded_linear(encoded)
+        encoded = F.relu(encoded)
         return encoded
 
     def decode(self, encoded: torch.Tensor):
         decoded = self.decoder(encoded)
-        
         return decoded.flatten(1)
 
     def classify(self, encoded: torch.Tensor):
-        x=self.dropout(encoded)
+        x = self.dropout(encoded)
         x = self.linear(x)
         x = F.relu(x)
-        x=self.dropout(x)
+        x = self.dropout(x)
         x = self.linear2(x)
         return x
 
