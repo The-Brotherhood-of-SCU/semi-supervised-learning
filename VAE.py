@@ -49,7 +49,9 @@ def test(test_loader=test_loader, net=model,isOffset=True):
                     outputs+=F.softmax(net(i)[0],dim=-1)
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
-    return (corrects / len(test_loader.dataset)).item()
+    getacc=(corrects / len(test_loader.dataset)).item()
+    print("get new accuracy::{}".format(getacc))
+    return getacc
 
 highest_acc=0
 highest_acc_data=None
