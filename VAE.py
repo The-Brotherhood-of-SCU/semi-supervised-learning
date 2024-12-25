@@ -50,7 +50,7 @@ def test(test_loader=test_loader, net=model,isOffset=True):
             preds = outputs.argmax(1).detach()
             corrects += (preds==labels.data).sum()
     getacc=(corrects / len(test_loader.dataset)).item()
-    print("get new accuracy:{}".format(getacc))
+    print("get new accuracy::{}".format(getacc))
     return getacc
 
 highest_acc=0
