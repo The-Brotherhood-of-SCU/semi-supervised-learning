@@ -1,16 +1,28 @@
 from fashion_dataset import *
-from module import Net3
+from module import Net4
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
+import torch.nn as nn
 
 # Initialize the model
-model = Net3().to(device)
+model = Net4().to(device)
+
+for m in model.modules():
+    if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
 
 # Define loss function and optimizer
-criterion_reconstruct = torch.nn.MSELoss()  # Use MSELoss for reconstruction
+criterion_reconstruct = torch.nn.MSELoss(reduction='sum')  # Use MSELoss for reconstruction
 criterion_class = torch.nn.CrossEntropyLoss()  # Use CrossEntropyLoss for classification
-optimizer = optim.Adam(model.parameters())
+optimizer = optim.Adam(model.parameters(), lr=0.0006, weight_decay=1e-5)
+def get_kl_loss(mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
+    # 更稳定的KL散度计算
+    logvar = logvar.clamp(min=-20, max=20)  # 限制logvar范围
+    return 0.5 * torch.sum(
+        torch.exp(logvar) + mu.pow(2) - 1 - logvar, 
+        dim=1
+    ).mean()
 
 # Training loop
 def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_loader=unlabeled_loader, epochs=10):
@@ -20,20 +32,31 @@ def train_semi_supervised(model=model, train_loader=enhance_loader_1, unlabeled_
         for ((labeled_data, labels), unlabeled_data) in zip(train_loader, unlabeled_loader):
             # Forward pass
             optimizer.zero_grad()
-            labeled_class,decoded = model(labeled_data)
-            reconstruction_loss=criterion_reconstruct(decoded,labeled_data)
-            class_loss = criterion_class(labeled_class, labels)
-            total_loss=reconstruction_loss+class_loss
+            # 修改优化器初始化，添加权重衰减
+            
+            
+            # 修改训练循环中的损失计算
+            labeled_class, decoded, mu, logvar = model(labeled_data)
+            reconstruction_loss = criterion_reconstruct(decoded, labeled_data) * 0.1
+            class_loss = criterion_class(labeled_class, labels) * 20
+            kl_loss = get_kl_loss(mu, logvar) * 0.05
+            total_loss=reconstruction_loss+kl_loss*0.2+class_loss
             preds = labeled_class.argmax(1).detach()
             train_corrects += (preds==labels.data).sum()
             # Backward pass
             total_loss.backward()
+            # avoid gradient explosion
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
             # unlabeled
-            _,decoded = model(unlabeled_data)
+            optimizer.zero_grad() 
+            _,decoded,mu,logvar = model(unlabeled_data)
             reconstruction_loss=criterion_reconstruct(decoded,unlabeled_data)
-            reconstruction_loss.backward()
+            kl_loss=get_kl_loss(mu,logvar)
+            total_loss=reconstruction_loss+kl_loss*0.05
+            # Backward pass
+            total_loss.backward()
             optimizer.step()
         acc=(train_corrects / len(train_loader.dataset)).item()
         print(f'Epoch {epoch+1}/{epochs},total Loss: {total_loss.item():.4f},construction Loss: {reconstruction_loss.item():.4f},class acc: {acc:.4f}')
@@ -79,7 +102,7 @@ def draw(index:int=0):
     with torch.no_grad():
         fig, ax = plt.subplots(1, 2, figsize=(10, 5))
         data:torch.Tensor=unlabeled_dataset[index]
-        _,data2=model(data)
+        _,data2,_,_=model(data)
         data2=data2.view(28,28)
         # 显示原始图像
         ax[0].imshow(data.cpu().view(28,28),cmap="gray")
@@ -106,4 +129,3 @@ def train_infty():
 
 if __name__ == "__main__":
     train_infty()
-
