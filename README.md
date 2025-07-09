@@ -15,7 +15,7 @@
 
 其中VAE模型表现最好，Accuracy达到了班级最高。更详细的内容可以参看[项目展示`final_presentation.pdf`](final_presentation.pdf)、[项目报告`final_report.pdf`](final_report.pdf)。
 
-# VAE模型简介
+# 半监督AE模型简介
 
 执行多任务学习。
 
