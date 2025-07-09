@@ -11,9 +11,9 @@
 - `module.py`: 模型定义(包含3个模型，分别对应以下3个文件训练)
 - `main.py`: 训练代码(CNN模型)
 - `train_try1.py`: 还是别看这个代码了，写的太丢人了
-- `VAE.py`: 训练代码(VAE模型（但好像这个不是标准的VAE）)
+- `VAE.py`: 训练代码(~~VAE模型~~（其实是AE,VAE跑出来效果没这个好）
 
-其中VAE模型表现最好，Accuracy达到了班级最高。更详细的内容可以参看[项目展示`final_presentation.pdf`](final_presentation.pdf)、[项目报告`final_report.pdf`](final_report.pdf)。
+其中AE模型表现最好，Accuracy达到了班级最高。更详细的内容可以参看[项目展示`final_presentation.pdf`](final_presentation.pdf)、[项目报告`final_report.pdf`](final_report.pdf)。
 
 # 半监督AE模型简介
 
